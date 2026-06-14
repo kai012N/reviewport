@@ -39,6 +39,12 @@ test('the overlay boot script references the manifest global', () => {
   assert.ok(tag.includes('reviewportOverlay') || tag.includes('__REVIEWPORT_DONE__'));
 });
 
+test('a page that merely mentions the attribute name still gets injected', () => {
+  const html = '<html><body><code>add a data-reviewport attribute</code></body></html>';
+  const out = injectHtml(html, manifest);
+  assert.ok(out.includes('window.__REVIEWPORT__='), 'incidental prose should not suppress injection');
+});
+
 test('non-string html is returned unchanged', () => {
   assert.equal(injectHtml(undefined, manifest), undefined);
 });
