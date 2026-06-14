@@ -46,6 +46,19 @@ confirmed issue:
 - Added the [launch kit](./LAUNCH.md) (Show HN / Reddit / Product Hunt / dev.to / X / GIF
   storyboard). Tests: 21 pass.
 
+## 2026-06-14 — one-command agent install
+
+Added `reviewport install <agent>` so users get the integration via npm instead of hand-
+copying files into their dotfiles. Grounded in the current docs: Claude Code has no
+npm→plugin bridge, so the command writes the skill to `.claude/skills/` (and, with
+`--hook`, merges a `Stop` hook into `settings.json` without clobbering); Codex skills go
+to `.agents/skills/`; Cline/Cursor/Aider get their rules files. `--global` targets the
+home dirs, `--print` is a dry run. Shipped `integrations/` inside the npm package so the
+installer's assets travel with it. Publish dry-run: clean 31.9 kB / 26 files. Tests: 27.
+
+`reviewport` is confirmed free on npm (404). **Not published yet** — needs `npm login`
+(the maintainer's account); publishing is their action.
+
 ## Roadmap
 
 **Phase 2 — close the loop with AI (next).**
