@@ -22,7 +22,7 @@ jobs:
       # Actions are pinned to major tags for readability; pin to a full commit SHA
       # before relying on this workflow to publish anything.
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
       # No `npm ci` — reviewport has zero runtime dependencies on purpose.
