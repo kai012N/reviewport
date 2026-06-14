@@ -29,12 +29,15 @@ jobs:
         run: npm install -g npm@latest
 
       # Changesets opens/updates a "Version Packages" PR when there are unreleased
-      # changesets, and runs `npm publish` when that PR is merged. With OIDC,
-      # publishing requires no NPM_TOKEN and produces a provenance attestation.
+      # changesets. The `publish` command runs `changeset publish`, which checks the
+      # registry and ONLY publishes versions not already on npm (so it's a clean
+      # no-op when there's nothing new — no "cannot publish over" errors). Access is
+      # taken from .changeset/config.json ("access": "public"); OIDC needs no token
+      # and NPM_CONFIG_PROVENANCE attaches a provenance attestation.
       - name: Create release PR or publish
         uses: changesets/action@v1
         with:
-          publish: npm publish --provenance --access public
+          publish: npx --yes @changesets/cli publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: "true"
