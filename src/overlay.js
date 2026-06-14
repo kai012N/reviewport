@@ -105,7 +105,6 @@ export function reviewportOverlay() {
   function highlight(c) {
     var my = ++hiSeq;
     clearHi();
-    notFound = false;
     var a = c.anchor || {};
     setTimeout(function () {
       if (my !== hiSeq) return; // a newer navigation superseded this one
@@ -123,7 +122,11 @@ export function reviewportOverlay() {
         var found = findText(value, a.selector, a.occurrence);
         if (found) { addHi(found, true); found.scrollIntoView({ block: 'center', behavior: 'smooth' }); ok = true; }
       }
-      if (!ok) { notFound = true; paint(); }
+      // Always reflect the actual result in the panel, so a found change never
+      // inherits a previous change's "couldn't locate" message (and a successful
+      // Re-locate clears a stale one).
+      notFound = !ok;
+      paint();
     }, 120);
   }
 
@@ -133,6 +136,7 @@ export function reviewportOverlay() {
     localStorage.setItem(KEY + ':idx', String(idx));
     var c = CH[idx];
     if (!matches(c)) { navTo(c); return; }
+    notFound = false; // clear any stale "couldn't locate" before painting the new change
     paint(); highlight(c);
   }
   function setStatus(v) {
