@@ -57,7 +57,11 @@ test('a NUL-byte path returns 400 and does NOT crash the server', async () => {
 
 // --- RCE regression: the Stop hook must not execute code from a directory name ---
 
-test('Stop hook does not execute code embedded in the working-directory name', () => {
+test('Stop hook does not execute code embedded in the working-directory name', {
+  // POSIX-only: the hook is a shell script, and the repro needs a directory name
+  // containing a double-quote, which is illegal on Windows (so the vuln can't occur there).
+  skip: process.platform === 'win32' ? 'POSIX-only (shell hook; quotes illegal in Windows dir names)' : false,
+}, () => {
   const root = mkdtempSync(path.join(tmpdir(), 'reviewport-rce-'));
   try {
     // A directory name that breaks out of the old node -e string literal and ran `id` before the fix.
