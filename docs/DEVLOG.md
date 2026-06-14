@@ -24,6 +24,28 @@ Progress log for reviewport. Newest first.
   SECURITY, CODEOWNERS), CI (incl. enforced zero-dependency guard), Pages + Changesets
   release workflows, docs, and the Claude Code + agent-agnostic integrations.
 
+## 2026-06-14 — launch-readiness audit + fixes
+
+Ran a multi-agent audit (findings adversarially verified) over the built repo. Fixed every
+confirmed issue:
+
+- **[security] serve.js path traversal** — the `startsWith(root)` guard let a sibling dir
+  sharing the root as a string prefix (e.g. `public` vs `public.bak`) be reached via
+  encoded `..`. Reproduced live (leaked a sibling file). Fixed with a separator-aware check
+  and added a regression test. Also bound `proxy`/`serve` to `localhost` (was binding to
+  all interfaces).
+- **[bug] manifest hot-reload died after atomic-rename saves** — `fs.watch(file)` stayed
+  bound to a stale inode. Now watches the parent dir and filters by basename.
+- **proxy** no longer injects into `HEAD` responses (was advertising a wrong content-length).
+- **cli** validates `--port` (was crashing on `--port abc`, silently truncating `12abc`).
+- **inject** guard now matches the exact `<script data-reviewport` tag (a page merely
+  mentioning the attribute name was silently skipped).
+- **docs** corrected two inaccurate schema claims (`defaults` can't deep-merge
+  `anchor.selector`; `status` isn't read/written by the viewer), lowercased the Pages host,
+  and replaced the README GIF placeholder with a live-demo CTA.
+- Added the [launch kit](./LAUNCH.md) (Show HN / Reddit / Product Hunt / dev.to / X / GIF
+  storyboard). Tests: 21 pass.
+
 ## Roadmap
 
 **Phase 2 — close the loop with AI (next).**
