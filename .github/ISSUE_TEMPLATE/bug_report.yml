@@ -1,0 +1,44 @@
+name: Bug report
+description: Something doesn't work as expected
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for the report! Please include enough for us to reproduce it.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Command you ran, the dev server / site it ran against, and (if relevant) a minimal manifest.
+      placeholder: |
+        1. npx reviewport proxy --target http://localhost:5173
+        2. open the proxied URL
+        3. ...
+      render: shell
+    validations:
+      required: true
+  - type: input
+    id: anchor-mode
+    attributes:
+      label: Anchor mode involved (if any)
+      placeholder: text / code-marker / look-here
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment
+      placeholder: |
+        - reviewport version: (reviewport --version)
+        - node -v:
+        - OS:
+        - dev server / framework:
+        - browser:
+      render: markdown
+    validations:
+      required: true

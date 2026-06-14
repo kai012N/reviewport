@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Use pull_request (not pull_request_target) so PRs from forks cannot read secrets.
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: test (node ${{ matrix.node }} / ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: [18, 20, 22]
+    steps:
+      # Actions are pinned to major tags for readability; pin to a full commit SHA
+      # before relying on this workflow to publish anything.
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      # No `npm ci` — reviewport has zero runtime dependencies on purpose.
+      - name: Run tests
+        run: node --test
+      - name: Validate bundled example manifest
+        run: node bin/reviewport.js validate examples/static-site/review-manifest.json
+
+  zero-deps:
+    name: zero-dependency guard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail if package.json has any runtime dependency
+        run: |
+          node -e '
+            const pkg = require("./package.json");
+            const deps = Object.keys(pkg.dependencies || {});
+            if (deps.length) {
+              console.error("Zero-dependency invariant violated. Runtime dependencies found:", deps.join(", "));
+              process.exit(1);
+            }
+            console.log("OK: zero runtime dependencies.");
+          '

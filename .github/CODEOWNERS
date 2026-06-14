@@ -1,0 +1,8 @@
+# Every change requires review from a code owner.
+# See GOVERNANCE.md for the merge-permission model.
+*       @kai012N
+
+# The public contract — extra care here.
+/src/schema/                @kai012N
+/docs/MANIFEST_SCHEMA.md     @kai012N
+/docs/AGENT_PROTOCOL.md      @kai012N

@@ -1,0 +1,35 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+concurrency: release-${{ github.ref }}
+
+permissions:
+  contents: write       # create the release PR / git tags
+  pull-requests: write  # open the "Version Packages" PR
+  id-token: write       # npm trusted publishing (OIDC) — no long-lived NPM_TOKEN
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      # Changesets opens/updates a "Version Packages" PR when there are unreleased
+      # changesets, and runs `npm publish` when that PR is merged. With OIDC,
+      # publishing requires no NPM_TOKEN and produces a provenance attestation.
+      - name: Create release PR or publish
+        uses: changesets/action@v1
+        with:
+          publish: npm publish --provenance --access public
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: "true"

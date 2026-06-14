@@ -1,0 +1,10 @@
+version: 2
+updates:
+  # We have zero runtime/dev npm dependencies by design, so the only thing worth
+  # keeping current is the GitHub Actions used in CI/release.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "ci"
