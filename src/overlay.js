@@ -211,11 +211,21 @@ export function reviewportOverlay() {
 
   // ---------- panel ----------
   var P = document.createElement('div'); P.id = '__reviewport_panel';
-  P.style.cssText = 'position:fixed;top:16px;right:16px;width:340px;max-height:86vh;background:#fff;border:1px solid #cfe0de;border-radius:12px;z-index:2147483647;font-family:system-ui,-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;display:flex;flex-direction:column;box-shadow:0 8px 28px rgba(0,0,0,.18);overflow:hidden';
+  // width caps to the viewport so the panel never overflows / clips on a narrow
+  // screen (e.g. reviewing in a slim IDE side-panel).
+  P.style.cssText = 'position:fixed;top:16px;right:16px;width:min(340px,calc(100vw - 32px));box-sizing:border-box;max-height:86vh;background:#fff;border:1px solid #cfe0de;border-radius:12px;z-index:2147483647;font-family:system-ui,-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;display:flex;flex-direction:column;box-shadow:0 8px 28px rgba(0,0,0,.18);overflow:hidden';
   document.documentElement.appendChild(P);
   try {
     var pos = JSON.parse(localStorage.getItem(KEY + ':pos') || 'null');
-    if (pos) { P.style.right = 'auto'; P.style.left = pos.left; P.style.top = pos.top; }
+    if (pos) {
+      var L = parseInt(pos.left, 10), T = parseInt(pos.top, 10);
+      if (!isNaN(L) && !isNaN(T)) {
+        // Clamp a position saved on a wider/taller screen so it stays on-screen now.
+        L = Math.max(4, Math.min(L, window.innerWidth - 60));
+        T = Math.max(4, Math.min(T, window.innerHeight - 40));
+        P.style.right = 'auto'; P.style.left = L + 'px'; P.style.top = T + 'px';
+      }
+    }
   } catch (e) {}
 
   // drag by the header

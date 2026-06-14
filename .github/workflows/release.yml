@@ -14,6 +14,11 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    # Dormant until you opt in: set repository variable RELEASE_ENABLED=true
+    # (Settings → Secrets and variables → Actions → Variables) once npm trusted
+    # publishing is configured. Until then this job is skipped (not failed), so a
+    # version bump that isn't on npm yet doesn't turn the workflow red.
+    if: ${{ vars.RELEASE_ENABLED == 'true' }}
     steps:
       - uses: actions/checkout@v4
         with:

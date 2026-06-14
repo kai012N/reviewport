@@ -31,6 +31,11 @@ fully untrusted input.
 ### Added
 - `reviewport demo` — serve a bundled sample site to try the whole loop with no setup.
 
+### Changed
+- The review panel is now responsive: its width caps to the viewport so it no longer
+  overflows/clips on a narrow screen (e.g. a slim IDE side-panel), and a restored drag
+  position is clamped on-screen.
+
 ### Fixed
 - Review panel no longer shows "Couldn't locate this on the page" on a change that
   was actually found, when it follows a not-found change (the panel now always
