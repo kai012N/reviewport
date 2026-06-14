@@ -98,7 +98,13 @@ export function installAgent(agent, opts = {}) {
     hookNote = opts.print ? `would add a Stop hook to ${settingsPath}` : mergeStopHook(settingsPath, command);
   }
 
-  return { agent, scope: useGlobal ? 'global' : 'project', results, hookNote, nextSteps };
+  // Only claude/codex have a real home-level (global) location; the others are always
+  // project-scoped, so report that honestly instead of mislabeling cwd as "global".
+  const supportsGlobal = agent === 'claude' || agent === 'codex';
+  if (useGlobal && !supportsGlobal) {
+    nextSteps.unshift(`Note: --global isn't supported for ${AGENTS[agent]} (it is project-scoped); wrote into ${dir}.`);
+  }
+  return { agent, scope: useGlobal && supportsGlobal ? 'global' : 'project', results, hookNote, nextSteps };
 }
 
 // Merge a Stop hook into a Claude settings.json without clobbering existing config.

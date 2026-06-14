@@ -38,7 +38,11 @@ export function reviewportOverlay() {
   var notFound = false; // set when the current anchor can't be located on the page
 
   // ---------- routing ----------
-  function norm(p) { return (p || '').replace(/\.html?$/, '').replace(/\/+$/, '') || '/'; }
+  function norm(p) {
+    var s = (p || '').replace(/\.html?$/, '').replace(/\/+$/, '');
+    s = s.replace(/\/index$/, ''); // treat /index.html and /foo/index.html as / and /foo
+    return s || '/';
+  }
   function matches(c) {
     if (!c.route || c.route === '.') return true; // current page, no navigation
     var here = norm(location.pathname);
@@ -85,6 +89,26 @@ export function reviewportOverlay() {
         },
       });
       var n; while ((n = w.nextNode())) { seen++; if (seen === want) return n.parentElement; }
+    }
+    // Pass 2: the value may be split across inline tags (e.g. "Ship <span>faster</span>
+    // with X"), so no single text node contains it. Fall back to the tightest visible
+    // element whose full textContent contains the value.
+    for (var r2 = 0; r2 < roots.length; r2++) {
+      var root2 = roots[r2] && roots[r2].querySelectorAll ? roots[r2] : document.body;
+      var cands = [];
+      var els = root2.querySelectorAll('*');
+      for (var i = 0; i < els.length; i++) {
+        var el = els[i];
+        var tag = el.tagName; if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT') continue;
+        if (el.closest('#__reviewport_panel')) continue;
+        if (el.getClientRects().length === 0) continue;
+        if ((el.textContent || '').indexOf(value) >= 0) cands.push(el);
+      }
+      for (var k = 0; k < cands.length; k++) {
+        var deeper = false;
+        for (var j = 0; j < cands.length; j++) { if (j !== k && cands[k].contains(cands[j])) { deeper = true; break; } }
+        if (!deeper) return cands[k];
+      }
     }
     return null;
   }
@@ -223,7 +247,7 @@ export function reviewportOverlay() {
       + '<div style="padding:8px 16px;font-size:12px;color:#5f6b70;border-bottom:1px solid #eef3f2">Approved ' + ok + ' Needs fix ' + no + ' Unseen ' + (CH.length - done) + '</div>'
       + '<div style="flex:1;overflow:auto;padding:16px">'
       + '<div style="display:inline-block;font-size:11px;padding:2px 9px;border-radius:6px;background:#e1f1f0;color:#0c6f6a">' + esc(c.category) + '</div>'
-      + (c.severity ? '<span style="font-size:11px;margin-left:6px;color:' + (c.severity === 'major' ? '#c0392b' : c.severity === 'minor' ? '#9a6a00' : '#5f6b70') + '">' + esc(c.severity) + '</span>' : '')
+      + (c.severity ? '<span style="font-size:11px;margin-left:6px;color:' + (/^(major|high)$/.test(c.severity) ? '#c0392b' : /^(minor|medium)$/.test(c.severity) ? '#9a6a00' : '#5f6b70') + '">' + esc(c.severity) + '</span>' : '')
       + '<span style="font-size:11px;color:#9aa6a4;margin-left:8px">#' + esc(c.id) + ' ' + esc(ROUTEBASE + c.route) + '</span>'
       + '<div style="font-size:14px;margin:10px 0;color:#1c2526;font-weight:600">' + esc(c.title) + '</div>'
       + (c.description ? '<div style="font-size:13px;margin:-4px 0 8px;color:#5f6b70">' + esc(c.description) + '</div>' : '')

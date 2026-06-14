@@ -85,7 +85,7 @@ export function createStaticServer({ dir, port = 6173, getManifest }) {
     });
     // Bind to localhost only — this is a local dev tool that injects scripts and
     // disables nothing; it should not be reachable from the LAN by default.
-    server.listen(port, 'localhost', () => resolve({ server, url: `http://localhost:${port}/` }));
+    server.listen(port, 'localhost', () => resolve({ server, url: `http://localhost:${server.address().port}/` }));
   });
 }
 

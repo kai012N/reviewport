@@ -15,12 +15,17 @@ import { injectHtml } from './inject.js';
  * @returns {Promise<{ server: import('node:http').Server, url: string }>}
  */
 export function createProxy({ target, port = 6173, getManifest }) {
-  const up = new URL(target);
+  let up;
+  try { up = new URL(target); } catch { up = null; }
+  if (!up || (up.protocol !== 'http:' && up.protocol !== 'https:')) {
+    throw new Error(`--target must be an http(s) URL (got ${JSON.stringify(target)}). Example: --target http://localhost:5173`);
+  }
   const upstreamIsTls = up.protocol === 'https:';
   const client = upstreamIsTls ? https : http;
   const upstreamPort = up.port || (upstreamIsTls ? 443 : 80);
 
   const server = http.createServer((req, res) => {
+   try {
     const headers = { ...req.headers, host: up.host, 'accept-encoding': 'identity' };
     const opts = {
       protocol: up.protocol,
@@ -58,6 +63,10 @@ export function createProxy({ target, port = 6173, getManifest }) {
       res.end('reviewport: upstream error (is the dev server running at ' + target + '?)\n' + e.message);
     });
     req.pipe(upReq);
+   } catch (e) {
+    // A malformed request/upstream must never crash the whole proxy process.
+    try { res.writeHead(502, { 'content-type': 'text/plain; charset=utf-8' }); res.end('reviewport: proxy error: ' + e.message); } catch (e2) { /* response already sent */ }
+   }
   });
 
   // Pass through websocket upgrades (Vite/webpack HMR, etc.).
@@ -86,6 +95,6 @@ export function createProxy({ target, port = 6173, getManifest }) {
       reject(e);
     });
     // Bind to localhost only (local dev tool; not for LAN exposure).
-    server.listen(port, 'localhost', () => resolve({ server, url: `http://localhost:${port}/` }));
+    server.listen(port, 'localhost', () => resolve({ server, url: `http://localhost:${server.address().port}/` }));
   });
 }

@@ -26,6 +26,7 @@ const HELP = `reviewport ${pkg.version} — review your AI agent's frontend chan
 Usage:
   reviewport proxy --target <url> [options]   Proxy a running dev server and inject the overlay
   reviewport serve <dir> [options]            Serve a static folder and inject the overlay
+  reviewport demo                             Try it now on a bundled sample site
   reviewport install <agent> [options]        Install the agent integration (skill/rules)
   reviewport validate [manifest]              Validate a change manifest
   reviewport init [manifest]                  Write a starter review-manifest.json
@@ -36,6 +37,10 @@ Run / serve options:
   --manifest <path>  Manifest file (default ${DEFAULT_MANIFEST_PATH})
   --route-base <p>   Path prefix prepended to every change.route
   --open             Open the URL in your browser
+
+A change's "route" is matched ignoring ".html" and a trailing "/index" — so the home
+page can be written as "/", "/index.html", or "."; "severity" accepts info|minor|major
+(low|medium|high too). See docs/MANIFEST_SCHEMA.md.
 
 install <agent> — one of: ${Object.keys(AGENTS).join(', ')}
   --global           Install for all projects (~/.claude, ~/.agents) instead of this project
@@ -61,6 +66,7 @@ const STARTER = {
       route: '/',
       title: 'Example: a copy change',
       category: 'copy',
+      severity: 'minor', // info | minor | major  (low | medium | high also accepted)
       before: 'old text',
       after: 'new text',
       anchor: { mode: 'text', value: 'new text' },
@@ -76,6 +82,7 @@ export async function run(argv = process.argv.slice(2)) {
 
   // `install` has its own flags, so parse it before the shared option set below.
   if (cmd === 'install') { return doInstall(argv.slice(1)); }
+  if (cmd === 'demo') { return doDemo(argv.slice(1)); }
 
   const rest = argv.slice(1);
   const { values, positionals } = parseArgs({
@@ -172,11 +179,38 @@ function doInstall(args) {
 }
 
 function doInit(file) {
+  if (typeof file === 'string' && file.startsWith('-')) {
+    console.error(`reviewport: "${file}" looks like a flag, not a filename. Usage: reviewport init [path]`);
+    process.exitCode = 1;
+    return;
+  }
   const abs = path.resolve(file);
   if (fs.existsSync(abs)) { console.error(`reviewport: ${file} already exists — not overwriting`); process.exitCode = 1; return; }
   fs.writeFileSync(abs, JSON.stringify(STARTER, null, 2) + '\n');
   console.log(`✓ wrote starter manifest to ${file}`);
-  console.log(`  Next: reviewport proxy --target http://localhost:5173`);
+  console.log('  Next — point reviewport at your site:');
+  console.log('    • have a dev server?  reviewport proxy --target <its-url>   (e.g. http://localhost:5173)');
+  console.log('    • just static files?  reviewport serve <folder>');
+  console.log('    • just exploring?     reviewport demo');
+}
+
+async function doDemo(args) {
+  let parsed;
+  try { parsed = parseArgs({ args, allowPositionals: true, options: { port: { type: 'string' }, open: { type: 'boolean', default: false } } }); }
+  catch (e) { console.error(`reviewport: ${e.message}`); process.exitCode = 1; return; }
+  let port = 6173;
+  if (parsed.values.port != null) {
+    port = Number(parsed.values.port);
+    if (!Number.isInteger(port) || port < 0 || port > 65535) { console.error('reviewport: --port must be an integer between 0 and 65535'); process.exitCode = 1; return; }
+  }
+  const pkgRoot = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+  const dir = path.join(pkgRoot, 'examples', 'static-site');
+  const manifestFile = path.join(dir, 'review-manifest.json');
+  if (!fs.existsSync(manifestFile)) { console.error('reviewport: bundled demo not found in this install.'); process.exitCode = 1; return; }
+  const getManifest = watchManifest(manifestFile);
+  const info = await createStaticServer({ dir, port, getManifest });
+  banner(info.url, 'serving the bundled demo — a sample site with 5 changes to walk through');
+  openBrowser(info.url);
 }
 
 async function doServe(cmd, values, positionals) {

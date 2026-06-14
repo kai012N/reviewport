@@ -65,6 +65,13 @@ test('all three anchor modes are accepted when complete', () => {
   assert.equal(r.valid, true);
 });
 
+test('severity accepts info|minor|major and the low|medium|high aliases', () => {
+  for (const sev of ['info', 'minor', 'major', 'low', 'medium', 'high']) {
+    assert.equal(validateManifest({ schemaVersion: 1, changes: [{ ...baseChange, severity: sev }] }).valid, true, sev);
+  }
+  assert.equal(validateManifest({ schemaVersion: 1, changes: [{ ...baseChange, severity: 'huge' }] }).valid, false);
+});
+
 test('unknown category is a warning, not an error', () => {
   const r = validateManifest({ schemaVersion: 1, changes: [{ ...baseChange, category: 'whatever' }] });
   assert.equal(r.valid, true);

@@ -1,6 +1,6 @@
 {
   "name": "reviewport",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Review your AI agent's frontend changes in the live UI — walk through each edit where it renders, approve or flag it, then send the fix-list back to the agent. Zero dependencies.",
   "type": "module",
   "license": "Apache-2.0",
@@ -36,6 +36,7 @@
     "bin",
     "src",
     "integrations",
+    "examples",
     "README.md",
     "README.zh-TW.md",
     "LICENSE",
