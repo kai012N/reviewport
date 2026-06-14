@@ -64,6 +64,13 @@ export function reviewportOverlay() {
   // selector should not break the whole overlay).
   function safeQSA(root, sel) { try { return root.querySelectorAll(sel); } catch (e) { return []; } }
   function safeQS(sel) { try { return document.querySelector(sel); } catch (e) { return null; } }
+  // Decode HTML entities in an anchor value so e.g. "&#36;29" matches the rendered
+  // text "$29". A detached <textarea> parses content as RCDATA (entities decoded, no
+  // tags/scripts executed), so this is safe even for untrusted manifest values.
+  function decodeEntities(s) {
+    if (typeof s !== 'string' || s.indexOf('&') < 0) return s;
+    var ta = document.createElement('textarea'); ta.innerHTML = s; return ta.value;
+  }
 
   // ---------- highlighting ----------
   function clearHi() { hiList.forEach(function (o) { o.el.style.cssText = o.css; }); hiList = []; }
@@ -74,6 +81,7 @@ export function reviewportOverlay() {
     if (strong) { el.style.outline = '2.5px solid #00a19b'; el.style.outlineOffset = '2px'; }
   }
   function findText(value, selector, occurrence) {
+    value = decodeEntities(value);
     var roots = selector ? safeQSA(document, selector) : [document.body];
     var want = occurrence && occurrence > 0 ? occurrence : 1;
     var seen = 0;

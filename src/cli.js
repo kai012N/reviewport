@@ -85,17 +85,24 @@ export async function run(argv = process.argv.slice(2)) {
   if (cmd === 'demo') { return doDemo(argv.slice(1)); }
 
   const rest = argv.slice(1);
-  const { values, positionals } = parseArgs({
-    args: rest,
-    allowPositionals: true,
-    options: {
-      target: { type: 'string' },
-      port: { type: 'string' },
-      manifest: { type: 'string', default: DEFAULT_MANIFEST_PATH },
-      'route-base': { type: 'string' },
-      open: { type: 'boolean', default: false },
-    },
-  });
+  let values, positionals;
+  try {
+    ({ values, positionals } = parseArgs({
+      args: rest,
+      allowPositionals: true,
+      options: {
+        target: { type: 'string' },
+        port: { type: 'string' },
+        manifest: { type: 'string', default: DEFAULT_MANIFEST_PATH },
+        'route-base': { type: 'string' },
+        open: { type: 'boolean', default: false },
+      },
+    }));
+  } catch (e) {
+    console.error(`reviewport: ${e.message}`);
+    process.exitCode = 1;
+    return;
+  }
 
   if (cmd === 'validate') {
     const file = positionals[0] || values.manifest;
@@ -153,9 +160,10 @@ function doInstall(args) {
   }
   const agent = parsed.positionals[0];
   if (!agent) {
-    console.log('Usage: reviewport install <agent> [--global] [--hook] [--dir <path>] [--force] [--print]');
-    console.log(`Agents: ${Object.keys(AGENTS).join(', ')}`);
-    console.log('Example: npx reviewport install claude --hook');
+    console.error('Usage: reviewport install <agent> [--global] [--hook] [--dir <path>] [--force] [--print]');
+    console.error(`Agents: ${Object.keys(AGENTS).join(', ')}`);
+    console.error('Example: npx reviewport install claude --hook');
+    process.exitCode = 1;
     return;
   }
   if (!AGENTS[agent]) {
@@ -208,7 +216,8 @@ async function doDemo(args) {
   const manifestFile = path.join(dir, 'review-manifest.json');
   if (!fs.existsSync(manifestFile)) { console.error('reviewport: bundled demo not found in this install.'); process.exitCode = 1; return; }
   const getManifest = watchManifest(manifestFile);
-  const info = await createStaticServer({ dir, port, getManifest });
+  const info = await listenWithRetry((p) => createStaticServer({ dir, port: p, getManifest }), port, parsed.values.port != null);
+  if (!info) return;
   banner(info.url, 'serving the bundled demo — a sample site with 5 changes to walk through');
   openBrowser(info.url);
 }
@@ -245,18 +254,48 @@ async function doServe(cmd, values, positionals) {
     return baseOverride != null ? { ...m, routeBase: baseOverride } : m;
   };
 
+  const portExplicit = values.port != null;
   let info;
   if (cmd === 'proxy') {
     if (!values.target) { console.error('reviewport: proxy mode needs --target <url>'); process.exitCode = 1; return; }
-    info = await createProxy({ target: values.target, port, getManifest: wrapped });
+    info = await listenWithRetry((p) => createProxy({ target: values.target, port: p, getManifest: wrapped }), port, portExplicit);
+    if (!info) return;
     banner(info.url, `proxying ${values.target}`);
+    probeTarget(values.target);
   } else {
     const dir = positionals[0] || '.';
-    info = await createStaticServer({ dir, port, getManifest: wrapped });
+    info = await listenWithRetry((p) => createStaticServer({ dir, port: p, getManifest: wrapped }), port, portExplicit);
+    if (!info) return;
     banner(info.url, `serving ${path.resolve(dir)}`);
   }
 
   if (values.open) openBrowser(info.url);
+}
+
+// Start a server, auto-incrementing off the default port if it's busy. If the user
+// explicitly passed --port, a clash is a clear error instead (don't silently move).
+async function listenWithRetry(make, startPort, explicit) {
+  for (let p = startPort, tries = 0; tries < 20; p++, tries++) {
+    try { return await make(p); }
+    catch (e) {
+      if (e && e.code === 'EADDRINUSE') {
+        if (explicit) { console.error(`reviewport: port ${p} is already in use. Try a different --port.`); process.exitCode = 1; return null; }
+        continue; // default port busy — try the next one (like Vite/webpack do)
+      }
+      throw e; // e.g. an invalid --target — let the top-level handler report it cleanly
+    }
+  }
+  console.error('reviewport: could not find a free port to bind to.'); process.exitCode = 1; return null;
+}
+
+// Non-blocking heads-up if the proxied dev server isn't reachable yet (it may start later).
+function probeTarget(target) {
+  try {
+    fetch(target).then(() => {}, (e) => {
+      const code = (e && e.cause && e.cause.code) || (e && e.message) || 'unreachable';
+      console.warn(`reviewport: heads up — couldn't reach ${target} yet (${code}). The overlay will work once your dev server is up.`);
+    });
+  } catch { /* fetch unavailable — skip the probe */ }
 }
 
 function banner(url, what) {

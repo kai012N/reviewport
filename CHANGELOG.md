@@ -42,7 +42,16 @@ fully untrusted input.
   matching ignores `.html` and a trailing `/index`).
 - **Text anchors split across inline tags** (e.g. `Ship <span>faster</span> with X`) now
   resolve via an element-text fallback.
+- **HTML-entity-encoded anchor values** (e.g. `&#36;29`) now resolve against the decoded
+  rendered text.
+- **Default port auto-increments when busy** (6173 → 6174 → …, like Vite/webpack); an
+  explicit `--port` clash still errors clearly.
+- **Proxy warns at startup if `--target` isn't reachable yet** (non-blocking — it still
+  starts, since the dev server may come up later).
 - `--port 0` (and any port) now prints the actual port the server bound to.
+- Malformed flags (e.g. `--port -5`) now produce a `reviewport:`-prefixed message, not a
+  raw parser error; `install` with no agent exits non-zero.
+- The Codex skill no longer hardcodes `"agent": "claude-code"` in its example.
 - `severity` accepts `low` / `medium` / `high` in addition to `info` / `minor` / `major`,
   and the `init` starter now includes a `severity` field.
 - `init` rejects a flag-looking argument instead of writing a file named `--force`.

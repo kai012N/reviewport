@@ -76,13 +76,7 @@ export function createStaticServer({ dir, port = 6173, getManifest }) {
   });
 
   return new Promise((resolve, reject) => {
-    server.on('error', (e) => {
-      if (e.code === 'EADDRINUSE') {
-        console.error(`reviewport: port ${port} is already in use. Try a different one with --port <n>.`);
-        process.exit(1);
-      }
-      reject(e);
-    });
+    server.on('error', reject); // EADDRINUSE etc. — the CLI decides whether to retry on another port
     // Bind to localhost only — this is a local dev tool that injects scripts and
     // disables nothing; it should not be reachable from the LAN by default.
     server.listen(port, 'localhost', () => resolve({ server, url: `http://localhost:${server.address().port}/` }));

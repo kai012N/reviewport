@@ -25,7 +25,7 @@ Write valid JSON to `./review-manifest.json` following this shape (full spec: th
 {
   "schemaVersion": 1,
   "generatedAt": "<ISO-8601 now>",
-  "agent": "claude-code",
+  "agent": "<your agent name, e.g. claude-code or codex>",
   "task": "<one line: what you were asked to do>",
   "routeBase": "",
   "changes": [
