@@ -23,6 +23,11 @@ jobs:
           node-version: 22
           registry-url: https://registry.npmjs.org
 
+      # npm trusted publishing (OIDC, keyless) requires npm >= 11.5.0; the runner
+      # ships an older npm, so upgrade before publishing.
+      - name: Upgrade npm for trusted publishing
+        run: npm install -g npm@latest
+
       # Changesets opens/updates a "Version Packages" PR when there are unreleased
       # changesets, and runs `npm publish` when that PR is merged. With OIDC,
       # publishing requires no NPM_TOKEN and produces a provenance attestation.
