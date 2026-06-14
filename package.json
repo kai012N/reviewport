@@ -35,6 +35,7 @@
   "files": [
     "bin",
     "src",
+    "integrations",
     "README.md",
     "README.zh-TW.md",
     "LICENSE",

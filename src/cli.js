@@ -15,6 +15,7 @@ import { createProxy } from './proxy.js';
 import { createStaticServer } from './serve.js';
 import { loadManifest, watchManifest, DEFAULT_MANIFEST_PATH } from './manifest.js';
 import { validateManifest } from './schema/validate.js';
+import { installAgent, AGENTS } from './install.js';
 
 const pkg = JSON.parse(
   fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'package.json'), 'utf8'),
@@ -25,15 +26,24 @@ const HELP = `reviewport ${pkg.version} — review your AI agent's frontend chan
 Usage:
   reviewport proxy --target <url> [options]   Proxy a running dev server and inject the overlay
   reviewport serve <dir> [options]            Serve a static folder and inject the overlay
+  reviewport install <agent> [options]        Install the agent integration (skill/rules)
   reviewport validate [manifest]              Validate a change manifest
   reviewport init [manifest]                  Write a starter review-manifest.json
 
-Options:
+Run / serve options:
   --target <url>     Upstream dev server (proxy mode), e.g. http://localhost:5174
   --port <n>         Port to listen on (default 6173)
   --manifest <path>  Manifest file (default ${DEFAULT_MANIFEST_PATH})
   --route-base <p>   Path prefix prepended to every change.route
   --open             Open the URL in your browser
+
+install <agent> — one of: ${Object.keys(AGENTS).join(', ')}
+  --global           Install for all projects (~/.claude, ~/.agents) instead of this project
+  --hook             (claude) also register the Stop hook in settings.json
+  --dir <path>       Target project directory (default: current directory)
+  --force            Overwrite existing files
+  --print            Show what would be written, without writing
+
   -h, --help         Show this help
   -v, --version      Show version
 
@@ -63,6 +73,9 @@ export async function run(argv = process.argv.slice(2)) {
 
   if (!cmd || cmd === '-h' || cmd === '--help' || cmd === 'help') { console.log(HELP); return; }
   if (cmd === '-v' || cmd === '--version') { console.log(pkg.version); return; }
+
+  // `install` has its own flags, so parse it before the shared option set below.
+  if (cmd === 'install') { return doInstall(argv.slice(1)); }
 
   const rest = argv.slice(1);
   const { values, positionals } = parseArgs({
@@ -110,6 +123,52 @@ function doValidate(file) {
     errors.forEach((e) => console.error(`  - ${e}`));
     process.exitCode = 1;
   }
+}
+
+function doInstall(args) {
+  let parsed;
+  try {
+    parsed = parseArgs({
+      args,
+      allowPositionals: true,
+      options: {
+        global: { type: 'boolean', default: false },
+        hook: { type: 'boolean', default: false },
+        dir: { type: 'string' },
+        force: { type: 'boolean', default: false },
+        print: { type: 'boolean', default: false },
+      },
+    });
+  } catch (e) {
+    console.error(`reviewport: ${e.message}`);
+    process.exitCode = 1;
+    return;
+  }
+  const agent = parsed.positionals[0];
+  if (!agent) {
+    console.log('Usage: reviewport install <agent> [--global] [--hook] [--dir <path>] [--force] [--print]');
+    console.log(`Agents: ${Object.keys(AGENTS).join(', ')}`);
+    console.log('Example: npx reviewport install claude --hook');
+    return;
+  }
+  if (!AGENTS[agent]) {
+    console.error(`reviewport: unknown agent "${agent}". Supported: ${Object.keys(AGENTS).join(', ')}`);
+    process.exitCode = 1;
+    return;
+  }
+
+  let r;
+  try { r = installAgent(agent, parsed.values); }
+  catch (e) { console.error(`reviewport: ${e.message}`); process.exitCode = 1; return; }
+
+  console.log('');
+  console.log(`reviewport → ${AGENTS[agent]} (${r.scope}${parsed.values.print ? ', dry run' : ''})`);
+  for (const [action, dest] of r.results) console.log(`  ${action}: ${dest}`);
+  if (r.hookNote) console.log(`  ${r.hookNote}`);
+  console.log('');
+  console.log('Next:');
+  for (const step of r.nextSteps) console.log(`  • ${step}`);
+  console.log('');
 }
 
 function doInit(file) {

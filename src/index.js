@@ -7,3 +7,4 @@ export { createProxy } from './proxy.js';
 export { createStaticServer } from './serve.js';
 export { validateManifest, CATEGORIES_HINT } from './schema/validate.js';
 export { loadManifest, watchManifest, DEFAULT_MANIFEST_PATH } from './manifest.js';
+export { installAgent, AGENTS } from './install.js';
