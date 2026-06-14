@@ -10,9 +10,13 @@
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
 [![Zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)](./package.json)
 
-[線上 Demo](https://kai012N.github.io/reviewport/) · [Manifest 規格](./docs/MANIFEST_SCHEMA.md) · [Agent 協定](./docs/AGENT_PROTOCOL.md) · [English](./README.md)
+[線上 Demo](https://kai012n.github.io/reviewport/) · [Manifest 規格](./docs/MANIFEST_SCHEMA.md) · [Agent 協定](./docs/AGENT_PROTOCOL.md) · [English](./README.md)
 
 </div>
+
+### ▶ [試用線上 Demo →](https://kai012n.github.io/reviewport/)
+
+你在 demo 裡看到的 overlay 就是真正的產品。_(完整 loop 的短片——agent 改完 → 一行指令 → 逐筆審查 → 標記 → 把待修清單貼回——之後會補在這裡。)_
 
 ---
 

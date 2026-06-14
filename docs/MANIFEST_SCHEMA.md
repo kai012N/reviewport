@@ -20,7 +20,7 @@ the reference viewer; the format is open, so anything can produce or consume it.
 | `task` | string | | Short description of the task the agent did. |
 | `baseUrl` | string | | Hint for where the dev site is served. |
 | `routeBase` | string | | Path prefix prepended to every `change.route` (e.g. `/docs`). Default `""`. |
-| `defaults` | object | | Shallow-merged into every change (change wins). Handy for a shared `anchor.selector`. |
+| `defaults` | object | | Shallow-merged into every change (change wins), **one level deep**. Handy for a shared optional top-level field like `files` or `severity`. It cannot supply nested keys (e.g. `anchor.selector`) or override required fields. |
 
 Unknown top-level keys are **ignored**, never rejected — manifests are
 forward-compatible.
@@ -39,7 +39,7 @@ forward-compatible.
 | `files` | string[] | | Source files touched. Shown in the "couldn't locate" fallback. |
 | `before` | string | | Previous value (rendered struck-through). |
 | `after` | string | | New value (rendered highlighted). |
-| `status` | object | | `{ "state": "pending" \| "approved" \| "rejected" }`. Agents emit `pending`; the viewer manages transitions. |
+| `status` | object | | `{ "state": "pending" \| "approved" \| "rejected" }`. An optional carried hint. The reference viewer does **not** currently read or write it — review state lives in the browser's `localStorage` — so don't expect it to round-trip. |
 
 ## Anchor (how to find the change)
 

@@ -39,7 +39,7 @@
     },
     "defaults": {
       "type": "object",
-      "description": "Optional defaults merged into every change (e.g. a shared anchor.selector scope).",
+      "description": "Optional defaults shallow-merged (one level deep) into every change; the change wins. Use for a shared optional top-level field like 'files' or 'severity'. Cannot supply nested keys (e.g. anchor.selector) or override required fields.",
       "additionalProperties": true
     },
     "changes": {
@@ -101,7 +101,7 @@
             "state": {
               "type": "string",
               "enum": ["pending", "approved", "rejected"],
-              "description": "Review state. Agents should emit 'pending'; the viewer manages transitions."
+              "description": "Optional carried hint. The reference viewer does not currently read or write this; review state lives in the browser's localStorage."
             }
           }
         }

@@ -11,11 +11,13 @@ Your agent just changed 40 things across your UI. **reviewport** walks you throu
 [![Zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)](./package.json)
 [![Node](https://img.shields.io/badge/node-%3E%3D18-339933.svg)](./package.json)
 
-[Live demo](https://kai012N.github.io/reviewport/) · [Manifest schema](./docs/MANIFEST_SCHEMA.md) · [Agent protocol](./docs/AGENT_PROTOCOL.md) · [繁體中文](./README.zh-TW.md)
+[Live demo](https://kai012n.github.io/reviewport/) · [Manifest schema](./docs/MANIFEST_SCHEMA.md) · [Agent protocol](./docs/AGENT_PROTOCOL.md) · [繁體中文](./README.zh-TW.md)
 
 </div>
 
-> _A 15-second demo GIF goes here — agent finishes → one command → overlay walks each change in the live UI → flag one → paste the fix-list back into the agent._
+### ▶ [Try the live demo →](https://kai012n.github.io/reviewport/)
+
+The overlay you see in the demo is the real product. _(A short screencast of the full loop — agent finishes → one command → walk each change → flag one → paste the fix-list back — will land here.)_
 
 ---
 
