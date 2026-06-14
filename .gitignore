@@ -1,0 +1,23 @@
+# Dependencies (there shouldn't be any runtime deps, but tooling may add some)
+node_modules/
+.pnp.*
+
+# Build / coverage
+dist/
+coverage/
+*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Local manifests created while dogfooding (don't commit a user's review state)
+/review-manifest.json
+
+# Changesets keep their own dir; nothing to ignore there

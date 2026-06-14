@@ -1,0 +1,51 @@
+{
+  "name": "reviewport",
+  "version": "0.1.0",
+  "description": "Review your AI agent's frontend changes in the live UI — walk through each edit where it renders, approve or flag it, then send the fix-list back to the agent. Zero dependencies.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "author": "kai012N <jason96350@gmail.com>",
+  "homepage": "https://github.com/kai012N/reviewport#readme",
+  "repository": { "type": "git", "url": "git+https://github.com/kai012N/reviewport.git" },
+  "bugs": { "url": "https://github.com/kai012N/reviewport/issues" },
+  "keywords": [
+    "ai",
+    "code-review",
+    "claude-code",
+    "cline",
+    "cursor",
+    "aider",
+    "agent",
+    "frontend",
+    "verification",
+    "review",
+    "diff",
+    "dev-server",
+    "proxy",
+    "overlay",
+    "zero-dependency"
+  ],
+  "bin": { "reviewport": "bin/reviewport.js" },
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./overlay": "./src/overlay.js",
+    "./schema": "./src/schema/manifest.schema.json"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md",
+    "README.zh-TW.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "test": "node --test",
+    "demo": "node bin/reviewport.js serve examples/static-site --manifest examples/static-site/review-manifest.json --port 6173 --open",
+    "build:demo": "node scripts/build-demo.mjs"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
