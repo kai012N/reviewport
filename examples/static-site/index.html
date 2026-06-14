@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Acme — Ship faster</title>
+  <style>
+    :root { --ink:#1c2526; --mut:#5f6b70; --teal:#00a19b; --bg:#f6faf9; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, sans-serif; color: var(--ink); background: var(--bg); line-height: 1.6; }
+    header { display:flex; align-items:center; gap:20px; padding:18px 32px; border-bottom:1px solid #e5eeec; }
+    header b { font-size:18px; }
+    nav a { color: var(--mut); text-decoration:none; margin-left:18px; font-size:14px; }
+    .hero { max-width:760px; margin:64px auto; padding:0 24px; text-align:center; }
+    .hero h1 { font-size:44px; margin:0 0 14px; letter-spacing:-.02em; }
+    .hero p { font-size:19px; color: var(--mut); margin:0 0 28px; }
+    .cta { display:inline-block; background: var(--teal); color:#fff; padding:13px 26px; border-radius:9px; text-decoration:none; font-weight:600; }
+    .pricing { max-width:760px; margin:48px auto; padding:0 24px; display:flex; gap:20px; }
+    .plan { flex:1; background:#fff; border:1px solid #e5eeec; border-radius:14px; padding:24px; }
+    .plan .price { font-size:34px; font-weight:700; }
+    .plan .price small { font-size:14px; color: var(--mut); font-weight:400; }
+    .code { max-width:760px; margin:48px auto; padding:0 24px; }
+    pre { background:#0d2e30; color:#cfe6e4; padding:18px 20px; border-radius:12px; overflow:auto; }
+    .line { display:block; }
+    footer { text-align:center; color: var(--mut); font-size:13px; padding:40px; }
+  </style>
+</head>
+<body>
+  <header>
+    <b>Acme</b>
+    <nav><a href="/">Home</a><a href="/about.html">About</a></nav>
+  </header>
+
+  <section class="hero">
+    <h1>Ship your frontend with confidence</h1>
+    <p>Acme helps teams catch UI mistakes before they reach production.</p>
+    <a class="cta" href="/about.html">Get started free</a>
+  </section>
+
+  <section class="pricing">
+    <div class="plan">
+      <h3>Starter</h3>
+      <div class="price">$0<small>/mo</small></div>
+      <p>For individuals trying things out.</p>
+    </div>
+    <div class="plan">
+      <h3>Pro</h3>
+      <div class="price">$29<small>/mo</small></div>
+      <p>For growing product teams.</p>
+    </div>
+  </section>
+
+  <section class="code">
+    <h3>Install</h3>
+    <pre><code><span class="line">npm install acme-sdk</span><span class="line">import { Acme } from 'acme-sdk'</span><span class="line">const acme = new Acme({ apiKey: process.env.ACME_KEY })</span></code></pre>
+  </section>
+
+  <footer>© 2026 Acme, Inc.</footer>
+</body>
+</html>

@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "id": "acme-demo",
+  "generatedAt": "2026-06-14T00:00:00Z",
+  "agent": "claude-code",
+  "task": "Polish the Acme marketing site: copy, pricing, install snippet, CTA",
+  "routeBase": "",
+  "changes": [
+    {
+      "id": "c-1",
+      "route": "/",
+      "title": "Sharpen the hero headline",
+      "category": "copy",
+      "severity": "minor",
+      "files": ["index.html"],
+      "before": "Build your frontend with confidence",
+      "after": "Ship your frontend with confidence",
+      "anchor": { "mode": "text", "value": "Ship your frontend with confidence" }
+    },
+    {
+      "id": "c-2",
+      "route": "/",
+      "title": "Update Pro plan price",
+      "category": "content",
+      "severity": "major",
+      "files": ["index.html"],
+      "before": "$25/mo",
+      "after": "$29/mo",
+      "anchor": { "mode": "text", "value": "$29", "selector": ".pricing" }
+    },
+    {
+      "id": "c-3",
+      "route": "/",
+      "title": "Read the API key from an env var, not a literal",
+      "category": "structure",
+      "severity": "major",
+      "description": "The install snippet now reads ACME_KEY from the environment instead of hardcoding it.",
+      "files": ["index.html"],
+      "before": "apiKey: 'sk-1234'",
+      "after": "apiKey: process.env.ACME_KEY",
+      "anchor": { "mode": "code-marker", "marker": "process.env.ACME_KEY", "lineHint": "the new Acme({…}) line" }
+    },
+    {
+      "id": "c-4",
+      "route": "/",
+      "title": "Make the primary CTA teal and pill-shaped",
+      "category": "css",
+      "severity": "minor",
+      "description": "The .cta button got the brand teal background and a 9px radius.",
+      "files": ["index.html"],
+      "anchor": { "mode": "look-here", "hint": "the green ‘Get started free’ button — confirm it’s teal, rounded, and readable", "selector": ".cta" }
+    },
+    {
+      "id": "c-5",
+      "route": "/about.html",
+      "title": "Rewrite the mission sentence",
+      "category": "copy",
+      "severity": "minor",
+      "files": ["about.html"],
+      "before": "Our goal is to make changes fast.",
+      "after": "Our mission is to make every UI change reviewable in seconds.",
+      "anchor": { "mode": "text", "value": "make every UI change reviewable in seconds" }
+    }
+  ]
+}
