@@ -41,9 +41,11 @@ export function createStaticServer({ dir, port = 6173, getManifest }) {
     try { urlPath = decodeURIComponent(new URL(req.url, 'http://x').pathname); }
     catch { urlPath = req.url; }
 
-    // Resolve and guard against path traversal.
+    // Resolve and guard against path traversal. Use a separator-aware check so a
+    // sibling dir sharing the root as a string prefix (e.g. `public` vs `public.bak`)
+    // can't be escaped into via encoded `..` segments.
     let filePath = path.join(root, urlPath);
-    if (!filePath.startsWith(root)) { res.writeHead(403); res.end('Forbidden'); return; }
+    if (filePath !== root && !filePath.startsWith(root + path.sep)) { res.writeHead(403); res.end('Forbidden'); return; }
 
     fs.stat(filePath, (err, stat) => {
       if (!err && stat.isDirectory()) filePath = path.join(filePath, 'index.html');
@@ -76,7 +78,9 @@ export function createStaticServer({ dir, port = 6173, getManifest }) {
       }
       reject(e);
     });
-    server.listen(port, () => resolve({ server, url: `http://localhost:${port}/` }));
+    // Bind to localhost only — this is a local dev tool that injects scripts and
+    // disables nothing; it should not be reachable from the LAN by default.
+    server.listen(port, 'localhost', () => resolve({ server, url: `http://localhost:${port}/` }));
   });
 }
 

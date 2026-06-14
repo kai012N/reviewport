@@ -33,7 +33,9 @@ export function createProxy({ target, port = 6173, getManifest }) {
     };
     const upReq = client.request(opts, (r) => {
       const ct = r.headers['content-type'] || '';
-      if (ct.indexOf('text/html') >= 0) {
+      // Only inject into GET HTML. HEAD has no body to inject into, and injecting
+      // would advertise a wrong content-length for the bodyless response.
+      if (ct.indexOf('text/html') >= 0 && req.method !== 'HEAD') {
         const chunks = [];
         r.on('data', (d) => chunks.push(d));
         r.on('end', () => {
@@ -83,6 +85,7 @@ export function createProxy({ target, port = 6173, getManifest }) {
       }
       reject(e);
     });
-    server.listen(port, () => resolve({ server, url: `http://localhost:${port}/` }));
+    // Bind to localhost only (local dev tool; not for LAN exposure).
+    server.listen(port, 'localhost', () => resolve({ server, url: `http://localhost:${port}/` }));
   });
 }
