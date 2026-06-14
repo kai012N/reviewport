@@ -21,7 +21,7 @@ jobs:
     steps:
       # Actions are pinned to major tags for readability; pin to a full commit SHA
       # before relying on this workflow to publish anything.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
@@ -35,7 +35,7 @@ jobs:
     name: zero-dependency guard
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Fail if package.json has any runtime dependency
         run: |
           node -e '

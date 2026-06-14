@@ -20,7 +20,7 @@ jobs:
     # version bump that isn't on npm yet doesn't turn the workflow red.
     if: ${{ vars.RELEASE_ENABLED == 'true' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - uses: actions/setup-node@v4
