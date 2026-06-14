@@ -101,7 +101,21 @@
     var target = norm(ROUTEBASE + c.route);
     return here === target || here.endsWith(norm(c.route));
   }
-  function navTo(c) { location.assign(ROUTEBASE + c.route); }
+  function navTo(c) {
+    // SECURITY: the manifest is untrusted input. Only navigate to a SAME-ORIGIN
+    // path — never let a route like "javascript:", "data:", or "//evil" reach
+    // location.assign (that would be a DOM-XSS / off-origin redirect sink). The URL
+    // parser normalizes leading whitespace and case, so scheme-smuggling is covered.
+    var u;
+    try { u = new URL(ROUTEBASE + c.route, location.origin); }
+    catch (e) { notFound = true; paint(); return; }
+    if (u.origin !== location.origin) { notFound = true; paint(); return; }
+    location.assign(u.pathname + u.search + u.hash);
+  }
+  // Selector helpers that never throw on a malformed manifest selector (a bad
+  // selector should not break the whole overlay).
+  function safeQSA(root, sel) { try { return root.querySelectorAll(sel); } catch (e) { return []; } }
+  function safeQS(sel) { try { return document.querySelector(sel); } catch (e) { return null; } }
 
   // ---------- highlighting ----------
   function clearHi() { hiList.forEach(function (o) { o.el.style.cssText = o.css; }); hiList = []; }
@@ -112,7 +126,7 @@
     if (strong) { el.style.outline = '2.5px solid #00a19b'; el.style.outlineOffset = '2px'; }
   }
   function findText(value, selector, occurrence) {
-    var roots = selector ? document.querySelectorAll(selector) : [document.body];
+    var roots = selector ? safeQSA(document, selector) : [document.body];
     var want = occurrence && occurrence > 0 ? occurrence : 1;
     var seen = 0;
     for (var r = 0; r < roots.length; r++) {
@@ -132,7 +146,7 @@
   }
   function markCode(marker, selector) {
     if (!marker) return false;
-    var scopes = selector ? document.querySelectorAll(selector) : [document];
+    var scopes = selector ? safeQSA(document, selector) : [document];
     var best = null;
     for (var s = 0; s < scopes.length && !(best && best.classList && best.classList.contains('line')); s++) {
       var root = scopes[s];
@@ -170,7 +184,7 @@
         ok = markCode(a.marker, a.selector);
       } else if (a.mode === 'look-here') {
         if (a.selector) {
-          var el = document.querySelector(a.selector);
+          var el = safeQS(a.selector);
           if (el) { addHi(el, true); el.scrollIntoView({ block: 'center', behavior: 'smooth' }); ok = true; }
         } else { ok = true; } // hint-only is fine; the panel shows the instruction
       } else {

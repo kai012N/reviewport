@@ -41,6 +41,11 @@ export function createStaticServer({ dir, port = 6173, getManifest }) {
     try { urlPath = decodeURIComponent(new URL(req.url, 'http://x').pathname); }
     catch { urlPath = req.url; }
 
+    // SECURITY: reject NUL bytes before they reach fs.* — fs throws *synchronously*
+    // on a path containing \0, which would otherwise crash the whole process (a
+    // one-request DoS reachable via a cross-origin GET like an <img src>).
+    if (urlPath.indexOf(String.fromCharCode(0)) >= 0) { res.writeHead(400); res.end('Bad Request'); return; }
+
     // Resolve and guard against path traversal. Use a separator-aware check so a
     // sibling dir sharing the root as a string prefix (e.g. `public` vs `public.bak`)
     // can't be escaped into via encoded `..` segments.

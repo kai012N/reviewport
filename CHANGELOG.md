@@ -10,6 +10,22 @@ initial, hand-written one.
 
 ## Unreleased
 
+### Security
+Injection-focused audit; the manifest and the working directory are now treated as
+fully untrusted input.
+- **RCE (Stop hook)**: `integrations/claude-code/hooks/reviewport-stop.sh` no longer
+  splices `$PWD` into a `node -e` program — a maliciously named directory could execute
+  arbitrary commands when the Claude Code Stop hook fired. It now reads the manifest by a
+  fixed relative path with `JSON.parse(fs.readFileSync(...))` (no `require`).
+- **DOM XSS (route sink)**: `overlay.js` `navTo()` now only navigates to **same-origin**
+  paths, so a manifest `route`/`routeBase` like `javascript:` / `data:` / `//evil` can no
+  longer reach `location.assign`. `validate` also rejects such routes up front.
+- **DoS (null byte)**: the static server returns `400` for a path containing a NUL byte
+  instead of crashing the process.
+- **Install hardening**: refuse to write through a pre-existing symlink; shell-escape the
+  home path in the global Stop-hook command.
+- **Robustness**: a malformed `anchor.selector` can no longer throw and break the overlay.
+
 ### Fixed
 - Review panel no longer shows "Couldn't locate this on the page" on a change that
   was actually found, when it follows a not-found change (the panel now always

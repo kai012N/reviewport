@@ -27,6 +27,10 @@ const HOOK_SRC = 'integrations/claude-code/hooks/reviewport-stop.sh';
 
 const readAsset = (rel) => fs.readFileSync(path.join(PKG_ROOT, rel), 'utf8');
 
+// Escape a path for safe interpolation inside a shell double-quoted string, so a
+// home dir containing " \ $ or ` can't break out of the hook command we write.
+const shDoubleQuote = (p) => String(p).replace(/(["\\$`])/g, '\\$1');
+
 /**
  * Plan + perform an install for one agent.
  * @param {string} agent
@@ -70,8 +74,13 @@ export function installAgent(agent, opts = {}) {
   // Perform the file writes.
   const results = [];
   for (const w of writes) {
-    const exists = fs.existsSync(w.dest);
+    let lst = null;
+    try { lst = fs.lstatSync(w.dest); } catch { /* doesn't exist */ }
+    const exists = !!lst;
     if (opts.print) { results.push(['would write', w.dest]); continue; }
+    // SECURITY: never write *through* a pre-existing symlink — it could redirect
+    // the write outside the intended target directory.
+    if (exists && lst.isSymbolicLink()) { results.push(['refused — target is a symlink', w.dest]); continue; }
     if (exists && !opts.force) { results.push(['exists — skipped (use --force)', w.dest]); continue; }
     fs.mkdirSync(path.dirname(w.dest), { recursive: true });
     fs.writeFileSync(w.dest, w.content);
@@ -84,7 +93,7 @@ export function installAgent(agent, opts = {}) {
   if (agent === 'claude' && opts.hook) {
     const settingsPath = useGlobal ? path.join(home, '.claude', 'settings.json') : path.join(dir, '.claude', 'settings.json');
     const command = useGlobal
-      ? `sh "${path.join(home, '.claude', 'hooks', 'reviewport-stop.sh')}"`
+      ? `sh "${shDoubleQuote(path.join(home, '.claude', 'hooks', 'reviewport-stop.sh'))}"`
       : 'sh "${CLAUDE_PROJECT_DIR}/.claude/hooks/reviewport-stop.sh"';
     hookNote = opts.print ? `would add a Stop hook to ${settingsPath}` : mergeStopHook(settingsPath, command);
   }
