@@ -99,6 +99,16 @@ npx reviewport install cursor     # or: cline · aider
 #   add --print for a dry run
 ```
 
+| Agent | Command | Writes to |
+|---|---|---|
+| Claude Code | `npx reviewport install claude` | `.claude/skills/reviewport-emit-manifest/SKILL.md` (+ `--hook` → a `Stop` hook in `.claude/settings.json`) |
+| Codex | `npx reviewport install codex` | `.agents/skills/reviewport-emit-manifest/SKILL.md` |
+| Cursor | `npx reviewport install cursor` | `.cursor/rules/reviewport.mdc` |
+| Cline | `npx reviewport install cline` | `.clinerules` |
+| Aider | `npx reviewport install aider` | `reviewport-conventions.md` |
+
+Add `--global` to install into your home config (`~/.claude`, `~/.agents`) for every project; `--print` for a dry run.
+
 After installing, the agent writes `review-manifest.json` automatically when it edits your frontend. Under the hood each target is just files in the right place:
 
 - **Claude Code** → a skill in `.claude/skills/` (+ an optional `Stop` hook that launches the overlay).
