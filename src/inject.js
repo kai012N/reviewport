@@ -35,7 +35,7 @@ export function buildOverlayScript(manifest) {
  */
 export function injectHtml(html, manifest) {
   if (typeof html !== 'string') return html;
-  if (html.indexOf('data-reviewport') >= 0) return html; // already injected
+  if (html.indexOf('<script data-reviewport') >= 0) return html; // already injected (match our exact tag, not incidental prose)
   const tag = buildOverlayScript(manifest);
   const i = html.lastIndexOf('</body>');
   if (i >= 0) return html.slice(0, i) + tag + html.slice(i);

@@ -54,7 +54,6 @@ const STARTER = {
       before: 'old text',
       after: 'new text',
       anchor: { mode: 'text', value: 'new text' },
-      status: { state: 'pending' },
     },
   ],
 };
@@ -122,7 +121,15 @@ function doInit(file) {
 }
 
 async function doServe(cmd, values, positionals) {
-  const port = values.port ? parseInt(values.port, 10) : 6173;
+  let port = 6173;
+  if (values.port != null) {
+    port = Number(values.port);
+    if (!Number.isInteger(port) || port < 0 || port > 65535) {
+      console.error('reviewport: --port must be an integer between 0 and 65535');
+      process.exitCode = 1;
+      return;
+    }
+  }
   const manifestFile = values.manifest;
 
   // Load once up front so we can fail fast with a clear message, then watch.

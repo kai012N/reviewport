@@ -27,14 +27,24 @@ export function loadManifest(file = DEFAULT_MANIFEST_PATH) {
  */
 export function watchManifest(file = DEFAULT_MANIFEST_PATH, onChange) {
   const abs = path.resolve(file);
+  const dir = path.dirname(abs);
+  const base = path.basename(abs);
   let current = EMPTY;
+  let timer = null;
   const reload = () => {
     try { current = loadManifest(abs).manifest; if (onChange) onChange(null, current); }
     catch (e) { if (onChange) onChange(e, current); }
   };
+  const schedule = () => { if (timer) clearTimeout(timer); timer = setTimeout(reload, 50); };
   if (fs.existsSync(abs)) reload();
   try {
-    fs.watch(abs, { persistent: false }, () => setTimeout(reload, 50));
+    // Watch the parent directory rather than the file itself: editors and agents
+    // often save by writing a temp file and renaming it over the target, which
+    // would leave a file-bound watcher pointing at a stale (unlinked) inode and
+    // silently stop firing. Filtering by basename keeps it scoped.
+    fs.watch(dir, { persistent: false }, (_evt, fname) => {
+      if (!fname || fname === base) schedule();
+    });
   } catch { /* watching is best-effort */ }
   return () => current;
 }
