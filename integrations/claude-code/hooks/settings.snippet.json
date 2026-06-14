@@ -1,0 +1,15 @@
+{
+  "//": "Paste this into .claude/settings.json (project) or ~/.claude/settings.json (global) if you prefer wiring the Stop hook manually instead of installing the plugin. Adjust the path to wherever you cloned reviewport.",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh /absolute/path/to/reviewport/integrations/claude-code/hooks/reviewport-stop.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

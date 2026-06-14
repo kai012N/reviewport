@@ -1,0 +1,29 @@
+# reviewport rule for Cline
+# Copy this file to your project root as `.clinerules` (or merge into an existing one).
+
+When you finish making user-visible frontend changes (copy, content, CSS/layout,
+rendered code samples) and before handing back to the user, write a reviewport change
+manifest to `./review-manifest.json` so the user can verify each change in the live UI.
+
+Rules:
+- One entry per user-visible change. Skip pure refactors, config, tests.
+- Each change needs: a unique `id`, the `route` it renders on, a short `title`, a
+  `category`, and an `anchor`. Include `before`/`after` and `files` when known.
+- Anchor priority — pick the most precise:
+  1. `{"mode":"text","value":"<the NEW visible text>"}`  (+ `selector`/`occurrence` if ambiguous)
+  2. `{"mode":"code-marker","marker":"<token from the new code line>"}`
+  3. `{"mode":"look-here","hint":"<what to look at>","selector":"<element>"}`  (for CSS/visual)
+- Top level: `{"schemaVersion":1,"agent":"cline","task":"<one line>","routeBase":"","changes":[...]}`.
+- Produce VALID JSON.
+
+Example entry:
+  {"id":"c-1","route":"/","title":"Sharpen hero headline","category":"copy",
+   "before":"Build…","after":"Ship…","anchor":{"mode":"text","value":"Ship…"}}
+
+After writing it, tell the user to run:
+  npx reviewport proxy --target <dev-url>      (or: npx reviewport serve <dir>)
+
+If the user pastes back text ending in `<!-- reviewport:rejected {"ids":[...]} -->`,
+parse those ids, re-fix each, and rewrite `./review-manifest.json`.
+
+Full spec: https://github.com/kai012N/reviewport/blob/main/docs/MANIFEST_SCHEMA.md

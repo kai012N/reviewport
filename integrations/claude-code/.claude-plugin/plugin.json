@@ -1,0 +1,9 @@
+{
+  "name": "reviewport",
+  "version": "0.1.0",
+  "description": "After Claude Code edits your frontend, it emits a reviewport change manifest so you can verify each change in the live UI and send fixes back.",
+  "author": { "name": "kai012N", "email": "jason96350@gmail.com" },
+  "homepage": "https://github.com/kai012N/reviewport",
+  "license": "Apache-2.0",
+  "keywords": ["review", "verification", "frontend", "manifest"]
+}

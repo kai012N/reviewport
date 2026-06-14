@@ -1,0 +1,31 @@
+---
+description: Emit a reviewport change manifest after user-visible frontend changes
+globs:
+alwaysApply: false
+---
+
+# reviewport: emit a change manifest
+
+Copy this file into `.cursor/rules/` in your project.
+
+After you finish making **user-visible frontend changes** (copy, content, CSS/layout,
+rendered code samples) and before handing back, write a reviewport change manifest to
+`./review-manifest.json` so the user can verify each change in the live UI.
+
+- One entry per visible change; skip pure refactors/config/tests.
+- Top level: `{ "schemaVersion": 1, "agent": "cursor", "task": "<one line>", "routeBase": "", "changes": [ … ] }`
+- Each change: unique `id`, `route` it renders on, short `title`, `category`, and an
+  `anchor`. Add `before`/`after`/`files`/`severity` when known.
+- Anchor priority (most precise first):
+  1. `{ "mode": "text", "value": "<NEW visible text>" }` (+ `selector`/`occurrence` if ambiguous)
+  2. `{ "mode": "code-marker", "marker": "<token from new code line>" }`
+  3. `{ "mode": "look-here", "hint": "<what to look at>", "selector": "<element>" }`
+- Output **valid JSON**.
+
+Then tell the user:
+> `npx reviewport proxy --target <dev-url>` (or `serve <dir>`), review, and paste back anything flagged.
+
+If the user pastes back text ending with `<!-- reviewport:rejected {"ids":[…]} -->`,
+parse the ids, re-fix them, and rewrite `./review-manifest.json` (it hot-reloads).
+
+Spec: https://github.com/kai012N/reviewport/blob/main/docs/MANIFEST_SCHEMA.md
