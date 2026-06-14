@@ -89,10 +89,23 @@ That's the whole product: **see each change where it renders → approve or flag
 
 ## Let your agent emit the manifest
 
-The point is that **the agent that made the changes also describes them.** reviewport ships first-class support for Claude Code and a portable protocol any agent can follow:
+The point is that **the agent that made the changes also describes them.** Install the integration with one command — no copying files into your dotfiles:
 
-- **Claude Code** → drop in the [skill + hooks](./integrations/claude-code/). After it edits your frontend, it writes `review-manifest.json` automatically, and the `Stop` hook can launch the overlay. See [integrations/claude-code](./integrations/claude-code/).
-- **Cline / Cursor / Aider / any agent** → add the ~20-line rule from [integrations/](./integrations/), or just point your agent at [docs/AGENT_PROTOCOL.md](./docs/AGENT_PROTOCOL.md). The contract is simple: *before handing back, write one manifest entry per user-visible change to `./review-manifest.json`.*
+```bash
+npx reviewport install claude     # writes the skill to .claude/skills/ (add --hook for the Stop hook)
+npx reviewport install codex      # writes the skill to .agents/skills/
+npx reviewport install cursor     # or: cline · aider
+#   add --global to install for all your projects (~/.claude, ~/.agents)
+#   add --print for a dry run
+```
+
+After installing, the agent writes `review-manifest.json` automatically when it edits your frontend. Under the hood each target is just files in the right place:
+
+- **Claude Code** → a skill in `.claude/skills/` (+ an optional `Stop` hook that launches the overlay).
+- **Codex** → a skill in `.agents/skills/`.
+- **Cline / Cursor / Aider / any agent** → a small rules file, or just point your agent at [docs/AGENT_PROTOCOL.md](./docs/AGENT_PROTOCOL.md). The contract is simple: *before handing back, write one manifest entry per user-visible change to `./review-manifest.json`.*
+
+The source for every integration lives in [integrations/](./integrations/) if you'd rather copy it by hand.
 
 The manifest is an **open, versioned schema** — see [docs/MANIFEST_SCHEMA.md](./docs/MANIFEST_SCHEMA.md). reviewport is the reference viewer; anyone can produce or consume the format.
 
@@ -129,6 +142,7 @@ Three ways to point at a change (`anchor.mode`):
 ```
 reviewport proxy --target <url> [--port 6173] [--manifest <path>] [--route-base <p>] [--open]
 reviewport serve <dir>          [--port 6173] [--manifest <path>] [--open]
+reviewport install <agent>      [--global] [--hook] [--dir <path>] [--force] [--print]
 reviewport validate [manifest]
 reviewport init [manifest]
 ```

@@ -25,6 +25,9 @@ Initial public release.
   for sites with no dev server.
 - **Versioned manifest schema** (`schemaVersion: 1`): JSON Schema +
   zero-dependency runtime validator.
+- **`reviewport install <agent>`** — one command that writes the integration into
+  place (Claude Code skill in `.claude/skills/` + optional Stop hook; Codex skill in
+  `.agents/skills/`; Cline/Cursor/Aider rules), with `--global`, `--print`, `--force`.
 - **Claude Code integration** (skill + hooks) and an **agent-agnostic protocol**
   doc, plus starter rules for Cline / Cursor / Aider.
 - Example static site, live demo, and full docs.
