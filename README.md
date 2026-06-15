@@ -15,9 +15,13 @@ Your agent just changed 40 things across your UI. **reviewport** walks you throu
 
 </div>
 
-### ▶ [Try the live demo →](https://kai012n.github.io/reviewport/)
+<div align="center">
 
-The overlay you see in the demo is the real product. _(A short screencast of the full loop — agent finishes → one command → walk each change → flag one → paste the fix-list back — will land here.)_
+[<img src="https://raw.githubusercontent.com/kai012N/reviewport/main/demo/hero.gif" alt="reviewport: an agent emits a change manifest, you walk each change in the live UI, flag one, and send the fix-list back" width="760">](https://kai012n.github.io/reviewport/)
+
+**▶ [Try the live demo →](https://kai012n.github.io/reviewport/)**
+
+</div>
 
 ---
 
