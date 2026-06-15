@@ -262,7 +262,12 @@ export function reviewportOverlay() {
       + '<span style="opacity:.5;font-size:14px">⠿</span><b style="font-size:15px">reviewport</b>'
       + '<span style="font-size:12px;color:#9fc7c4">' + (idx + 1) + ' / ' + CH.length + '</span>'
       + '<span style="flex:1"></span>'
-      + '<button id="rv_fill" title="Toggle the green highlight fill (turn off if it covers the changed content)" style="background:' + (fillOn ? '#0c5b57' : 'none') + ';border:1px solid #2c5f60;color:#cfe6e4;border-radius:5px;padding:3px 9px;cursor:pointer;font-size:12px">' + (fillOn ? '◧ Fill' : '▢ Fill') + '</button>'
+      + '<button id="rv_fill" title="Toggle the highlight fill — turn off if it covers the changed content" style="box-sizing:border-box;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:30px;height:24px;padding:0;border:1px solid #2c5f60;border-radius:5px;cursor:pointer;background:' + (fillOn ? '#0c5b57' : 'transparent') + ';color:' + (fillOn ? '#e8f4f3' : '#5a7e7d') + '">'
+      + '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">'
+      + '<rect x="3.5" y="9" width="7" height="6" rx="1.4" fill="currentColor"></rect>'
+      + '<path d="M10.5 7.6 L15 6 L15 18 L10.5 16.4 Z" fill="currentColor"></path>'
+      + (fillOn ? '<g stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M16.6 9 L20 7.6"></path><path d="M16.6 12 L20.6 12"></path><path d="M16.6 15 L20 16.4"></path></g>' : '')
+      + '</svg></button>'
       + '<button id="rv_x" style="background:none;border:1px solid #2c5f60;color:#cfe6e4;border-radius:5px;padding:3px 9px;cursor:pointer;font-size:12px">Hide</button></div>'
       + '<div style="height:5px;background:#dde8e7"><div style="height:100%;background:#00a19b;width:' + (done / CH.length * 100) + '%"></div></div>'
       + '<div style="padding:8px 16px;font-size:12px;color:#5f6b70;border-bottom:1px solid #eef3f2">Approved ' + ok + ' Needs fix ' + no + ' Unseen ' + (CH.length - done) + '</div>'
