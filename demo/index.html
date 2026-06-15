@@ -132,10 +132,13 @@
   // ---------- highlighting ----------
   function clearHi() { hiList.forEach(function (o) { o.el.style.cssText = o.css; }); hiList = []; }
   function addHi(el, strong) {
+    // Flashlight off = leave the page completely untouched (no fill, no outline), so
+    // nothing covers the content being verified. It still scrolls to the change and the
+    // panel still shows which one it is; use "Re-locate" or toggle the light back on.
+    if (!fillOn) return;
     hiList.push({ el: el, css: el.style.cssText });
-    // The fill tints the element; turning it off (outline only) keeps the changed
-    // content fully readable. The outline always stays so you still see where it is.
-    if (fillOn) { el.style.background = strong ? 'rgba(0,161,155,.20)' : 'rgba(0,161,155,.11)'; el.style.borderRadius = '3px'; }
+    el.style.background = strong ? 'rgba(0,161,155,.20)' : 'rgba(0,161,155,.11)';
+    el.style.borderRadius = '3px';
     if (strong) { el.style.outline = '2.5px solid #00a19b'; el.style.outlineOffset = '2px'; }
   }
   function findText(value, selector, occurrence) {
@@ -318,7 +321,7 @@
       + '<span style="opacity:.5;font-size:14px">⠿</span><b style="font-size:15px">reviewport</b>'
       + '<span style="font-size:12px;color:#9fc7c4">' + (idx + 1) + ' / ' + CH.length + '</span>'
       + '<span style="flex:1"></span>'
-      + '<button id="rv_fill" title="Toggle the highlight fill — turn off if it covers the changed content" style="box-sizing:border-box;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:30px;height:24px;padding:0;border:1px solid #2c5f60;border-radius:5px;cursor:pointer;background:' + (fillOn ? '#0c5b57' : 'transparent') + ';color:' + (fillOn ? '#e8f4f3' : '#5a7e7d') + '">'
+      + '<button id="rv_fill" title="Toggle the on-page highlight — turn it off if it covers the content you are checking" style="box-sizing:border-box;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:30px;height:24px;padding:0;border:1px solid #2c5f60;border-radius:5px;cursor:pointer;background:' + (fillOn ? '#0c5b57' : 'transparent') + ';color:' + (fillOn ? '#e8f4f3' : '#5a7e7d') + '">'
       + '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">'
       + '<rect x="3.5" y="9" width="7" height="6" rx="1.4" fill="currentColor"></rect>'
       + '<path d="M10.5 7.6 L15 6 L15 18 L10.5 16.4 Z" fill="currentColor"></path>'

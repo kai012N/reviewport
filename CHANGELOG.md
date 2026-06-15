@@ -11,8 +11,10 @@ initial, hand-written one.
 ## Unreleased
 
 ### Added
-- **Highlight "Fill" toggle** in the panel header — turn off the green fill (keeping the
-  outline) when it slightly covers the content you're verifying. Remembered per session.
+- **Flashlight toggle** in the panel header — turn the on-page highlight on/off. When off,
+  the green marking (fill **and** outline) is removed entirely so nothing covers the
+  content you're verifying; reviewport still scrolls to each change and the panel still
+  shows which one it is. Fixed-size button (no reflow); remembered per session.
 
 ## 0.1.1 — 2026-06-15
 
