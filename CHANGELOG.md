@@ -11,6 +11,7 @@ initial, hand-written one.
 ## Unreleased
 
 ### Added
+- **First (⏮) and last (⏭) jump buttons** next to Prev/Next, with `Home`/`End` shortcuts.
 - **Flashlight toggle** in the panel header — turn the on-page highlight on/off. When off,
   the green marking (fill **and** outline) is removed entirely so nothing covers the
   content you're verifying; reviewport still scrolls to each change and the panel still

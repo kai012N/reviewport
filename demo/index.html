@@ -347,15 +347,19 @@
       + '<button id="rv_ok" style="flex:1;padding:9px;border-radius:7px;cursor:pointer;font-size:14px;font-family:inherit;border:1px solid ' + (s === 'ok' ? '#0f8a5f' : '#dfe7e6') + ';background:' + (s === 'ok' ? '#0f8a5f' : '#fff') + ';color:' + (s === 'ok' ? '#fff' : '#1c2526') + '">✓ Looks right</button>'
       + '<button id="rv_no" style="flex:1;padding:9px;border-radius:7px;cursor:pointer;font-size:14px;font-family:inherit;border:1px solid ' + (s === 'no' ? '#c0392b' : '#dfe7e6') + ';background:' + (s === 'no' ? '#c0392b' : '#fff') + ';color:' + (s === 'no' ? '#fff' : '#1c2526') + '">✗ Needs fix</button></div>'
       + '</div>'
-      + '<div style="display:flex;gap:8px;padding:12px 16px;border-top:1px solid #eef3f2">'
+      + '<div style="display:flex;gap:6px;padding:12px 16px;border-top:1px solid #eef3f2">'
+      + '<button id="rv_first" title="First change" style="flex:0 0 auto;padding:9px 10px;border:1px solid #dfe7e6;background:#fff;border-radius:7px;cursor:pointer;font-size:13px;font-family:inherit">⏮</button>'
       + '<button id="rv_prev" style="flex:1;padding:9px;border:1px solid #dfe7e6;background:#fff;border-radius:7px;cursor:pointer;font-size:14px;font-family:inherit">← Prev</button>'
-      + '<button id="rv_next" style="flex:1;padding:9px;border:1px solid #dfe7e6;background:#fff;border-radius:7px;cursor:pointer;font-size:14px;font-family:inherit">Next →</button></div>'
+      + '<button id="rv_next" style="flex:1;padding:9px;border:1px solid #dfe7e6;background:#fff;border-radius:7px;cursor:pointer;font-size:14px;font-family:inherit">Next →</button>'
+      + '<button id="rv_last" title="Last change" style="flex:0 0 auto;padding:9px 10px;border:1px solid #dfe7e6;background:#fff;border-radius:7px;cursor:pointer;font-size:13px;font-family:inherit">⏭</button></div>'
       + '<div style="padding:0 16px 14px"><button id="rv_exp" style="width:100%;padding:8px;border:1px solid #00a19b;background:#fff;color:#00a19b;border-radius:7px;cursor:pointer;font-size:13px;font-family:inherit">Export fix-list</button></div>';
     P.querySelector('#rv_loc').onclick = function () { highlight(c); };
     P.querySelector('#rv_ok').onclick = function () { setStatus('ok'); };
     P.querySelector('#rv_no').onclick = function () { setStatus('no'); };
+    P.querySelector('#rv_first').onclick = function () { go(0); };
     P.querySelector('#rv_prev').onclick = function () { go(idx - 1); };
     P.querySelector('#rv_next').onclick = function () { go(idx + 1); };
+    P.querySelector('#rv_last').onclick = function () { go(CH.length - 1); };
     P.querySelector('#rv_exp').onclick = exportRej;
     P.querySelector('#rv_fill').onclick = function () {
       fillOn = !fillOn;
@@ -376,6 +380,8 @@
     if (e.target && /input|textarea|select/i.test(e.target.tagName)) return;
     if (e.key === 'ArrowRight') go(idx + 1);
     else if (e.key === 'ArrowLeft') go(idx - 1);
+    else if (e.key === 'Home') go(0);
+    else if (e.key === 'End') go(CH.length - 1);
     else if (e.key.toLowerCase() === 'y') setStatus('ok');
     else if (e.key.toLowerCase() === 'n') setStatus('no');
   });
