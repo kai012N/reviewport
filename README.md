@@ -17,7 +17,7 @@ Your agent just changed 40 things across your UI. **reviewport** walks you throu
 
 <div align="center">
 
-[<img src="https://raw.githubusercontent.com/kai012N/reviewport/main/demo/hero.gif" alt="reviewport: an agent emits a change manifest, you walk each change in the live UI, flag one, and send the fix-list back" width="760">](https://kai012n.github.io/reviewport/)
+[<img src="https://raw.githubusercontent.com/kai012N/reviewport/main/demo/hero.gif?v=2" alt="reviewport: an agent emits a change manifest, you walk each change in the live UI, flag one, and send the fix-list back" width="760">](https://kai012n.github.io/reviewport/)
 
 **▶ [Try the live demo →](https://kai012n.github.io/reviewport/)**
 
