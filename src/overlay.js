@@ -36,6 +36,7 @@ export function reviewportOverlay() {
   var hiList = [];
   var hiSeq = 0;        // bumped on every highlight() so stale (rapid-nav) timeouts no-op
   var notFound = false; // set when the current anchor can't be located on the page
+  var fillOn = localStorage.getItem(KEY + ':fill') !== '0'; // green highlight fill (off = outline only, so it doesn't cover the content)
 
   // ---------- routing ----------
   function norm(p) {
@@ -76,8 +77,9 @@ export function reviewportOverlay() {
   function clearHi() { hiList.forEach(function (o) { o.el.style.cssText = o.css; }); hiList = []; }
   function addHi(el, strong) {
     hiList.push({ el: el, css: el.style.cssText });
-    el.style.background = strong ? 'rgba(0,161,155,.20)' : 'rgba(0,161,155,.11)';
-    el.style.borderRadius = '3px';
+    // The fill tints the element; turning it off (outline only) keeps the changed
+    // content fully readable. The outline always stays so you still see where it is.
+    if (fillOn) { el.style.background = strong ? 'rgba(0,161,155,.20)' : 'rgba(0,161,155,.11)'; el.style.borderRadius = '3px'; }
     if (strong) { el.style.outline = '2.5px solid #00a19b'; el.style.outlineOffset = '2px'; }
   }
   function findText(value, selector, occurrence) {
@@ -260,6 +262,7 @@ export function reviewportOverlay() {
       + '<span style="opacity:.5;font-size:14px">⠿</span><b style="font-size:15px">reviewport</b>'
       + '<span style="font-size:12px;color:#9fc7c4">' + (idx + 1) + ' / ' + CH.length + '</span>'
       + '<span style="flex:1"></span>'
+      + '<button id="rv_fill" title="Toggle the green highlight fill (turn off if it covers the changed content)" style="background:' + (fillOn ? '#0c5b57' : 'none') + ';border:1px solid #2c5f60;color:#cfe6e4;border-radius:5px;padding:3px 9px;cursor:pointer;font-size:12px">' + (fillOn ? '◧ Fill' : '▢ Fill') + '</button>'
       + '<button id="rv_x" style="background:none;border:1px solid #2c5f60;color:#cfe6e4;border-radius:5px;padding:3px 9px;cursor:pointer;font-size:12px">Hide</button></div>'
       + '<div style="height:5px;background:#dde8e7"><div style="height:100%;background:#00a19b;width:' + (done / CH.length * 100) + '%"></div></div>'
       + '<div style="padding:8px 16px;font-size:12px;color:#5f6b70;border-bottom:1px solid #eef3f2">Approved ' + ok + ' Needs fix ' + no + ' Unseen ' + (CH.length - done) + '</div>'
@@ -290,6 +293,12 @@ export function reviewportOverlay() {
     P.querySelector('#rv_prev').onclick = function () { go(idx - 1); };
     P.querySelector('#rv_next').onclick = function () { go(idx + 1); };
     P.querySelector('#rv_exp').onclick = exportRej;
+    P.querySelector('#rv_fill').onclick = function () {
+      fillOn = !fillOn;
+      localStorage.setItem(KEY + ':fill', fillOn ? '1' : '0');
+      paint();          // update the button state
+      highlight(c);     // re-apply the highlight with the new fill setting
+    };
     P.querySelector('#rv_x').onclick = function () { P.style.display = 'none'; showFab(); };
   }
   function showFab() {
