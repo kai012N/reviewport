@@ -45,19 +45,25 @@ payload like:
 ```
 reviewport: these changes still need fixing (2):
 
-#c-3 [/uikit/modals] popup title wrong — expected: 提示訊息標題
+#c-3 [/uikit/modals] popup title wrong
+   → make it bold and use the brand teal
 #c-7 [/pricing] button overlaps on mobile — expected: …
 
-<!-- reviewport:rejected {"ids":["c-3","c-7"]} -->
+<!-- reviewport:rejected {"ids":["c-3","c-7"],"notes":{"c-3":"make it bold and use the brand teal"}} -->
 ```
 
 When you (the agent) receive this:
 
 1. Parse the trailing `<!-- reviewport:rejected {…} -->` comment to get the exact
    `ids`. The lines above are for the human; the comment is for you.
-2. Look those ids up in the manifest you wrote to recover full context.
-3. Re-fix them, then **rewrite `review-manifest.json`** (the overlay hot-reloads).
-4. Tell the human to re-review just those entries.
+2. If a `notes` map is present, **treat each note as the reviewer's specific instruction
+   for how to fix that change** (it overrides your own guess). A `→ …` line in the
+   human-readable part is the same note. Notes are JSON strings — `<` and `>` arrive
+   `<`/`>`-escaped, which `JSON.parse` decodes for you.
+3. Look those ids up in the manifest you wrote to recover full context.
+4. Re-fix them (following the notes), then **rewrite `review-manifest.json`** (the
+   overlay hot-reloads).
+5. Tell the human to re-review just those entries.
 
 ## Minimal rules to paste into your agent
 

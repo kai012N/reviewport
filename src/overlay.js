@@ -37,6 +37,8 @@ export function reviewportOverlay() {
   var hiSeq = 0;        // bumped on every highlight() so stale (rapid-nav) timeouts no-op
   var notFound = false; // set when the current anchor can't be located on the page
   var fillOn = localStorage.getItem(KEY + ':fill') !== '0'; // green highlight fill (off = outline only, so it doesn't cover the content)
+  var notes = {};        // per-change "how to fix" notes the reviewer types (sent back in the export)
+  try { notes = JSON.parse(localStorage.getItem(KEY + ':notes') || '{}') || {}; } catch (e) { notes = {}; }
 
   // ---------- routing ----------
   function norm(p) {
@@ -199,11 +201,19 @@ export function reviewportOverlay() {
   function exportRej() {
     var rej = CH.filter(function (c) { return st[c.id] === 'no'; });
     if (!rej.length) { alert('Nothing flagged as "needs fix" yet.'); return; }
+    var noteMap = {};
     var lines = rej.map(function (c) {
+      var note = (notes[c.id] || '').trim();
+      var head = '#' + c.id + ' [' + (ROUTEBASE + c.route) + '] ' + c.title;
+      if (note) { noteMap[c.id] = note; return head + '\n   → ' + note; } // reviewer's instruction
       var expect = c.after || (c.anchor && c.anchor.hint) || '';
-      return '#' + c.id + ' [' + (ROUTEBASE + c.route) + '] ' + c.title + (expect ? ' — expected: ' + expect : '');
+      return head + (expect ? ' — expected: ' + expect : '');
     });
-    var machine = '<!-- reviewport:rejected ' + JSON.stringify({ ids: rej.map(function (c) { return c.id; }) }) + ' -->';
+    var payload = { ids: rej.map(function (c) { return c.id; }) };
+    if (Object.keys(noteMap).length) payload.notes = noteMap;
+    // Escape < and > so a free-form note can never break out of the HTML comment (or
+    // any sink that renders the paste-back); JSON.parse decodes \u00xx transparently.
+    var machine = '<!-- reviewport:rejected ' + JSON.stringify(payload).replace(/</g, '\\u003c').replace(/>/g, '\\u003e') + ' -->';
     var txt = 'reviewport: these changes still need fixing (' + rej.length + '):\n\n' + lines.join('\n') + '\n\n' + machine;
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(txt).then(
@@ -290,6 +300,10 @@ export function reviewportOverlay() {
       + '<div style="display:flex;gap:8px;margin-top:10px">'
       + '<button id="rv_ok" style="flex:1;padding:9px;border-radius:7px;cursor:pointer;font-size:14px;font-family:inherit;border:1px solid ' + (s === 'ok' ? '#0f8a5f' : '#dfe7e6') + ';background:' + (s === 'ok' ? '#0f8a5f' : '#fff') + ';color:' + (s === 'ok' ? '#fff' : '#1c2526') + '">✓ Looks right</button>'
       + '<button id="rv_no" style="flex:1;padding:9px;border-radius:7px;cursor:pointer;font-size:14px;font-family:inherit;border:1px solid ' + (s === 'no' ? '#c0392b' : '#dfe7e6') + ';background:' + (s === 'no' ? '#c0392b' : '#fff') + ';color:' + (s === 'no' ? '#fff' : '#1c2526') + '">✗ Needs fix</button></div>'
+      // Reviewer's "how to fix" note. Rendered as an EMPTY textarea here; its value is
+      // set via .value in JS below (never interpolated into innerHTML) so a note can
+      // never inject markup/script — important since this is free-form input.
+      + '<div style="margin-top:10px"><textarea id="rv_note" maxlength="2000" rows="2" placeholder="Suggest how to fix this (optional) — sent back with the fix-list" style="width:100%;box-sizing:border-box;resize:vertical;font-family:inherit;font-size:12.5px;line-height:1.5;color:#1c2526;border:1px solid #dfe7e6;border-radius:7px;padding:7px 9px;background:#fff;min-height:40px"></textarea></div>'
       + '</div>'
       + '<div style="display:flex;gap:6px;padding:12px 16px;border-top:1px solid #eef3f2">'
       + '<button id="rv_first" title="First change" style="flex:0 0 auto;padding:9px 10px;border:1px solid #dfe7e6;background:#fff;border-radius:7px;cursor:pointer;font-size:13px;font-family:inherit">⏮</button>'
@@ -300,6 +314,14 @@ export function reviewportOverlay() {
     P.querySelector('#rv_loc').onclick = function () { highlight(c); };
     P.querySelector('#rv_ok').onclick = function () { setStatus('ok'); };
     P.querySelector('#rv_no').onclick = function () { setStatus('no'); };
+    var ta = P.querySelector('#rv_note');
+    if (ta) {
+      ta.value = notes[c.id] || '';     // safe: assigned as a value, not parsed as HTML
+      ta.oninput = function () {
+        notes[c.id] = ta.value;
+        try { localStorage.setItem(KEY + ':notes', JSON.stringify(notes)); } catch (e) {}
+      };
+    }
     P.querySelector('#rv_first').onclick = function () { go(0); };
     P.querySelector('#rv_prev').onclick = function () { go(idx - 1); };
     P.querySelector('#rv_next').onclick = function () { go(idx + 1); };
